@@ -113,6 +113,12 @@ This allows visualization tools to properly display different organism types and
 - Spawn offspring 15-40 pixels away
 - Offspring: Same agent file, 50 energy
 
+**IMPORTANT FOR SIMULATION EXECUTION:**
+When a custom organism reproduces, the offspring is a new organism that must be invoked independently each tick using the SAME agent file as its parent. For example, if organism ID 21 (using `critter-orange-cat-lazy-m3w7.md`) reproduces and creates organism ID 22, then starting the next tick, BOTH organisms must be invoked:
+- Invoke `critter-orange-cat-lazy-m3w7.md` with context for ID 21
+- Invoke `critter-orange-cat-lazy-m3w7.md` with context for ID 22
+Each gets its own context (position, energy, age, etc.) but uses the same strategy.
+
 ### SIGNAL
 - Broadcast message to nearby organisms (within 100 pixels)
 - Other agents see signals in their context

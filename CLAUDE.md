@@ -263,11 +263,13 @@ Claude Code reads episodes/config/ep_*.json
   ├─ For each tick (1 to duration):
   │   ├─ Update plants (photosynthesis, reproduction)
   │   ├─ Update herbivores (deterministic AI)
-  │   ├─ For each custom agent:
-  │   │   ├─ Build context about surroundings
-  │   │   ├─ Invoke agent via Task tool with context
-  │   │   ├─ Parse response (ACTION + REASONING)
-  │   │   └─ Execute action in world
+  │   ├─ **PARALLEL INVOCATION** for ALL custom agents:
+  │   │   ├─ Build context for each organism
+  │   │   ├─ Invoke ALL agents simultaneously via Task tool
+  │   │   ├─ Parse responses (ACTION + REASONING)
+  │   │   └─ Execute actions in world
+  │   ├─ Handle reproduction:
+  │   │   └─ Offspring become new organisms to invoke next tick
   │   ├─ Remove dead organisms
   │   └─ Record tick events to replay NDJSON
   ├─ Calculate final scores
@@ -277,6 +279,23 @@ Claude Code reads episodes/config/ep_*.json
 NOTE: Claude Code maintains all state in memory and executes
 the simulation directly. No TypeScript/JavaScript runner needed.
 ```
+
+#### Critical Implementation Details:
+
+1. **Parallel Agent Invocation**: All custom organisms (including offspring) must be invoked IN PARALLEL each tick using multiple Task tool calls in a single message. This dramatically improves performance.
+
+2. **Offspring Handling**: When any custom organism reproduces, the offspring uses the SAME agent file as its parent but with its own unique context (ID, position, energy). Starting the next tick, the offspring must be invoked alongside all other custom organisms.
+
+3. **State Management**: Claude Code maintains the complete world state in memory throughout the conversation, tracking:
+   - All organism positions, energy, health
+   - Parent-offspring relationships
+   - Deaths and births
+   - Environmental conditions
+
+4. **Computational Cost**: A full simulation requires (custom_organisms × ticks) agent invocations. For example:
+   - 30 ticks × 3 organisms = 90 invocations minimum
+   - 300 ticks × 10 organisms = 3000 invocations minimum
+   - Plus additional invocations for any offspring created
 
 ### 4. **Analyze Results** (Optional)
 ```

@@ -1,0 +1,36 @@
+{
+  "episodeId": "ep_1730393845_r7k4",
+  "type": "predator-prey-dynamics",
+  "created": "2025-10-31T18:30:45Z",
+  "config": {
+    "duration": 150,
+    "worldWidth": 800,
+    "worldHeight": 800,
+    "worldSeed": 7734
+  },
+  "populations": {
+    "plants": {
+      "count": 35,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 18,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-aggressive-hunter-h4k9.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-s7x2.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-orange-cat-lazy-m3w7.md",
+        "count": 1
+      }
+    ]
+  },
+  "status": "complete"
+}
