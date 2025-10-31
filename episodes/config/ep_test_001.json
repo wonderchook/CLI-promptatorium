@@ -1,0 +1,32 @@
+{
+  "episodeId": "ep_test_001",
+  "type": "test-battle",
+  "created": "2025-10-31T18:00:00Z",
+  "config": {
+    "duration": 60,
+    "worldWidth": 500,
+    "worldHeight": 500,
+    "worldSeed": 42
+  },
+  "populations": {
+    "plants": {
+      "count": 20,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 10,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-cautious-scavenger-s7x2.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-aggressive-hunter-h4k9.md",
+        "count": 2
+      }
+    ]
+  },
+  "status": "pending"
+}

@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.js
+*.js.map
+*.d.ts
+!src/types.ts
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local settings
+.claude/settings.local.json
+
+# Generated replay files (large, can be regenerated)
+episodes/replay/*.ndjson
+
+# Development notes (not for repo)
+AGENT_INVOCATION_ISSUE.md
+AGENT_INVOCATION_SOLUTION.md
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+temp_*
+tmp/
+temp/
