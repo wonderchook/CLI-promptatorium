@@ -1,0 +1,44 @@
+{
+  "episodeId": "ep_compact_test",
+  "type": "compact-agent-test",
+  "created": "2025-11-01T00:00:00Z",
+  "config": {
+    "duration": 10,
+    "worldWidth": 400,
+    "worldHeight": 400,
+    "worldSeed": 12345
+  },
+  "populations": {
+    "plants": {
+      "count": 15,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 8,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-orange-cat-lazy-c001.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-aggressive-hunter-c002.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-c003.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-forest-phantom-c004.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-squeaky-colony-c005.md",
+        "count": 2
+      }
+    ]
+  },
+  "status": "complete"
+}

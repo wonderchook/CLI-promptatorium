@@ -1,0 +1,36 @@
+{
+  "episodeId": "ep_in-the-beginning",
+  "type": "battle",
+  "created": "2025-11-01T12:00:00Z",
+  "config": {
+    "duration": 25,
+    "worldWidth": 750,
+    "worldHeight": 750,
+    "worldSeed": 42042
+  },
+  "populations": {
+    "plants": {
+      "count": 35,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 12,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-orange-cat-lazy-c001.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-c003.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-squeaky-colony-c005.md",
+        "count": 2
+      }
+    ]
+  },
+  "status": "running"
+}

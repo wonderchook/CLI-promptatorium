@@ -1,0 +1,45 @@
+{
+  "simulation": {
+    "integrity_enforcement": {
+      "enabled": true,
+      "checkpoints": {
+        "pre_simulation": true,
+        "tick_interval": 5,
+        "reproduction_events": true,
+        "anomaly_detection": true,
+        "post_simulation": true
+      },
+      "halt_on_violation": true,
+      "require_parallel_invocation": true,
+      "minimum_token_threshold": 500,
+      "log_invocations": true
+    },
+    "execution": {
+      "max_organisms": 300,
+      "default_tick_count": 20,
+      "parallel_batch_size": 10,
+      "retry_on_failure": false,
+      "verbose_logging": true
+    },
+    "replay": {
+      "format": "ndjson",
+      "include_reasoning": true,
+      "compress_empty_ticks": false,
+      "track_lineage": true
+    },
+    "scoring": {
+      "survival_weight": 0.4,
+      "energy_weight": 0.25,
+      "reproduction_weight": 0.25,
+      "cooperation_weight": 0.1,
+      "energy_baseline": 150,
+      "reproduction_multiplier": 5
+    },
+    "validation": {
+      "enforce_action_rules": true,
+      "validate_energy_bounds": true,
+      "check_position_bounds": true,
+      "require_reasoning": true
+    }
+  }
+}

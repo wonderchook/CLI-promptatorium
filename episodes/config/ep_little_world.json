@@ -1,0 +1,21 @@
+{
+  "episodeId": "ep_little_world",
+  "type": "battle",
+  "created": "2025-10-31T18:00:00Z",
+  "config": {
+    "duration": 15,
+    "worldWidth": 500,
+    "worldHeight": 500,
+    "worldSeed": 8472
+  },
+  "populations": {
+    "plants": {"count": 20, "strategy": "random"},
+    "herbivores": {"count": 10, "strategy": "random"},
+    "customAgents": [
+      {"agentFile": "critter-orange-cat-lazy-m3w7.md", "count": 2},
+      {"agentFile": "critter-forest-phantom-k9m2.md", "count": 2},
+      {"agentFile": "critter-aggressive-hunter-h4k9.md", "count": 2}
+    ]
+  },
+  "status": "complete"
+}

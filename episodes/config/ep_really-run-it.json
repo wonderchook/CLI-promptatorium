@@ -1,0 +1,22 @@
+{
+  "episodeId": "ep_really-run-it",
+  "type": "battle",
+  "created": "2025-10-31T18:30:00Z",
+  "config": {
+    "duration": 20,
+    "worldWidth": 1000,
+    "worldHeight": 1000,
+    "worldSeed": 837264
+  },
+  "populations": {
+    "plants": {"count": 50, "strategy": "random"},
+    "herbivores": {"count": 15, "strategy": "random"},
+    "customAgents": [
+      {"agentFile": "critter-orange-cat-lazy-m3w7.md", "count": 2},
+      {"agentFile": "critter-cautious-scavenger-s7x2.md", "count": 2},
+      {"agentFile": "critter-forest-phantom-k9m2.md", "count": 2},
+      {"agentFile": "critter-squeaky-colony-burrower-f7p4.md", "count": 2}
+    ]
+  },
+  "status": "complete"
+}

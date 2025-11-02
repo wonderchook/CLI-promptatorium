@@ -1,0 +1,40 @@
+{
+  "episodeId": "ep_super-episode",
+  "type": "battle",
+  "created": "2025-11-01T00:00:00Z",
+  "config": {
+    "duration": 50,
+    "worldWidth": 1000,
+    "worldHeight": 1000,
+    "worldSeed": 78945612
+  },
+  "populations": {
+    "plants": {
+      "count": 40,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 15,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-orange-cat-lazy-c001.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-c003.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-forest-phantom-c004.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-squeaky-colony-c005.md",
+        "count": 2
+      }
+    ]
+  },
+  "status": "complete"
+}

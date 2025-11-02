@@ -1,0 +1,43 @@
+{
+  "episodeId": "ep_compact_test_30",
+  "type": "compact-test-with-checkpoint",
+  "created": "2025-11-01T12:00:00Z",
+  "config": {
+    "duration": 30,
+    "worldWidth": 400,
+    "worldHeight": 400,
+    "worldSeed": 99999,
+    "compactSchedule": [25]
+  },
+  "populations": {
+    "plants": {
+      "count": 15,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 8,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-orange-cat-lazy-c001.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-aggressive-hunter-c002.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-c003.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-forest-phantom-c004.md",
+        "count": 1
+      }
+    ]
+  },
+  "outputMode": "minimal",
+  "status": "pending",
+  "notes": "Test simulation with planned /compact at tick 25. Designed to verify checkpoint system and post-compact execution integrity."
+}

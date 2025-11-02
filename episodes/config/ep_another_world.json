@@ -1,0 +1,22 @@
+{
+  "episodeId": "ep_another_world",
+  "type": "battle",
+  "created": "2025-10-31T19:30:00Z",
+  "config": {
+    "duration": 4,
+    "worldWidth": 500,
+    "worldHeight": 500,
+    "worldSeed": 3142
+  },
+  "populations": {
+    "plants": {"count": 20, "strategy": "random"},
+    "herbivores": {"count": 10, "strategy": "random"},
+    "customAgents": [
+      {"agentFile": "critter-orange-cat-lazy-m3w7.md", "count": 1},
+      {"agentFile": "critter-cautious-scavenger-s7x2.md", "count": 1},
+      {"agentFile": "critter-forest-phantom-k9m2.md", "count": 1},
+      {"agentFile": "critter-squeaky-colony-burrower-f7p4.md", "count": 1}
+    ]
+  },
+  "status": "complete"
+}

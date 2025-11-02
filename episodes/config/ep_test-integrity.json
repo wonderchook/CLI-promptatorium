@@ -1,0 +1,21 @@
+{
+  "episodeId": "ep_test-integrity",
+  "type": "battle",
+  "created": "2025-10-31T19:45:00Z",
+  "config": {
+    "duration": 5,
+    "worldWidth": 500,
+    "worldHeight": 500,
+    "worldSeed": 924817
+  },
+  "populations": {
+    "plants": {"count": 30, "strategy": "random"},
+    "herbivores": {"count": 15, "strategy": "random"},
+    "customAgents": [
+      {"agentFile": "critter-orange-cat-lazy-m3w7.md", "count": 2},
+      {"agentFile": "critter-aggressive-hunter-h4k9.md", "count": 2},
+      {"agentFile": "critter-squeaky-colony-burrower-f7p4.md", "count": 2}
+    ]
+  },
+  "status": "complete"
+}
