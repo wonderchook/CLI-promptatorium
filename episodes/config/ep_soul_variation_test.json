@@ -1,0 +1,33 @@
+{
+  "episodeId": "ep_soul_variation_test",
+  "type": "nondeterminism-test",
+  "created": "2025-11-02T00:00:00Z",
+  "description": "Test if LLM souls produce varied behavior with same initial conditions",
+  "config": {
+    "duration": 5,
+    "worldWidth": 500,
+    "worldHeight": 500,
+    "worldSeed": 42,
+    "biomes": {
+      "primary": "meadow",
+      "distribution": "uniform"
+    }
+  },
+  "populations": {
+    "plants": {
+      "count": 5,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 3,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-free-soul-test-f5t1.md",
+        "count": 1
+      }
+    ]
+  },
+  "status": "pending"
+}
