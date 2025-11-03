@@ -1,0 +1,41 @@
+{
+  "episodeId": "ep_free_soul_world",
+  "type": "battle",
+  "created": "2025-11-02T12:00:00Z",
+  "description": "Free-soul nondeterminism test in mixed predator ecosystem",
+  "config": {
+    "duration": 20,
+    "worldWidth": 800,
+    "worldHeight": 800,
+    "worldSeed": 789456,
+    "biomes": {
+      "primary": "meadow",
+      "distribution": "uniform"
+    }
+  },
+  "populations": {
+    "plants": {
+      "count": 50,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 15,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-free-soul-test-f5t1.md",
+        "count": 3
+      },
+      {
+        "agentFile": "critter-aggressive-hunter-h4k9.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-s7x2.md",
+        "count": 1
+      }
+    ]
+  },
+  "status": "complete"
+}

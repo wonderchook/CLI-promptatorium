@@ -92,6 +92,11 @@ traits: {
 **Detection Range**: `baseRange * (1 + visionRange * 0.5) * biome.visibility`
 **Attack Damage**: `baseDamage * (1 + strength * 0.4)`
 **Defense**: `incomingDamage * (1 - armor * 0.5)`
+**Parasite Detection** (trait-based):
+- Detection chance per tick: `max(0, min(1.0, (host.visionRange - parasite.camouflage) + 0.3))`
+- Base 30% chance, modified by trait difference
+- Example: Host visionRange 0.5, Parasite camouflage 0.9 → `max(0, (0.5 - 0.9) + 0.3) = 0.0` (invisible)
+- Example: Host visionRange 0.8, Parasite camouflage 0.5 → `max(0, (0.8 - 0.5) + 0.3) = 0.6` (60% detection)
 
 ## Organism Archetypes
 
@@ -130,9 +135,15 @@ traits: {
 **Special**: Gain energy from dead organisms, clean environment
 
 ### 6. Parasites (NEW - Agent-Controlled)
-**Traits**: Small size, high stealth
-**Behavior**: Attach to hosts, drain 2 energy/tick
-**Special**: Hard to detect, vulnerable when detached
+**Traits**: Small size (0.2), high camouflage (0.9), low speed (0.4)
+**Behavior**: Attach to hosts using ATTACH action, drain 2 energy/tick passively while attached
+**Special**: Hard to detect (trait-based: host.perception - parasite.camouflage), vulnerable when detached
+**Attachment Mechanics**:
+- Use `ATTACH(targetId)` within 5 pixels to latch onto host
+- While attached: Position syncs with host, passive drain active, reduced visibility
+- Use `DETACH()` to leave host voluntarily
+- Auto-detach if host dies (parasite survives at host's last position)
+- Cannot reproduce while attached (must detach first)
 
 ### 7. Symbionts (NEW - Agent-Controlled)
 **Traits**: High cooperation
@@ -167,6 +178,17 @@ Custom agents MUST respond with EXACTLY ONE of these enumerated actions:
    - No parameters (net gain 2.5 energy)
    - Example: `ACTION: REST()`
 
+6. **ATTACH**: `ACTION: ATTACH(targetId)`
+   - targetId: INTEGER (must exist in nearby organisms and be within 5 pixels)
+   - Requirements: Target must not already have parasite attached, parasite must not already be attached
+   - Effect: Parasite attaches to host, moves with host automatically, becomes hard to detect
+   - Example: `ACTION: ATTACH(34)`
+
+7. **DETACH**: `ACTION: DETACH()`
+   - No parameters (parasite must currently be attached)
+   - Effect: Parasite detaches from host, resumes independent movement
+   - Example: `ACTION: DETACH()`
+
 **INVALID RESPONSES (will incur confusion penalty):**
 - ❌ "I will hunt the herbivore" (narrative, not structured)
 - ❌ "Moving toward prey and then attacking" (multi-action)
@@ -175,7 +197,7 @@ Custom agents MUST respond with EXACTLY ONE of these enumerated actions:
 
 **Parser Requirements:**
 ```regex
-^ACTION:\s+(MOVE|EAT|REPRODUCE|SIGNAL|REST)\((.*)\)\s*$
+^ACTION:\s+(MOVE|EAT|REPRODUCE|SIGNAL|REST|ATTACH|DETACH)\((.*)\)\s*$
 ```
 If parsing fails, organism takes no action and loses 2 energy.
 
@@ -204,6 +226,19 @@ If parsing fails, organism takes no action and loses 2 energy.
 - Energy gain: `3` (base gain)
 - Energy cost: `0.5` (metabolic)
 - Net gain: `2.5` energy/tick
+
+**ATTACH(targetId)**
+- Range check: `distance(self, target) <= 5`
+- State check: `target.parasiteId === null && self.attachedToId === null`
+- Cost: `1` energy
+- Effect: Sets `self.attachedToId = targetId` and `target.parasiteId = self.id`
+- Position: Parasite position synced to host position each tick automatically
+
+**DETACH()**
+- State check: `self.attachedToId !== null`
+- Cost: `0.5` energy
+- Effect: Sets `self.attachedToId = null` and `host.parasiteId = null`
+- Position: Parasite remains at current location, resumes independent movement
 
 ### Combo Actions
 Organisms can chain two actions per tick:
@@ -513,16 +548,52 @@ After ALL agent responses collected, apply in THIS ORDER:
 }
 ```
 
-**Phase 2: Death Processing**
+**Phase 2: Passive Effects (Parasites)**
 ```json
 {
-  "deaths": [
-    {"id": 12, "cause": "energy <= 0", "removed": true}
+  "passiveDrain": [
+    {
+      "parasiteId": 45,
+      "hostId": 23,
+      "attachedState": true,
+      "computation": {
+        "drainAmount": 2.0,
+        "parasiteGain": 1.5,
+        "hostEnergyBefore": 56.0,
+        "hostEnergyAfter": "56.0 - 2.0 = 54.0",
+        "parasiteEnergyBefore": 73.5,
+        "parasiteEnergyAfter": "73.5 + 1.5 = 75.0"
+      },
+      "positionSync": {
+        "hostPosition": {"x": 345, "y": 210},
+        "parasitePosition": {"x": 345, "y": 210}
+      }
+    }
   ]
 }
 ```
+**Passive drain rules:**
+- Applies to all parasites where `attachedToId !== null`
+- Host loses 2.0 energy/tick
+- Parasite gains 1.5 energy/tick (75% transfer efficiency)
+- Parasite position synchronized to host position
+- Applied AFTER actions, BEFORE death checks
 
-**Phase 3: Birth Processing**
+**Phase 3: Death Processing**
+```json
+{
+  "deaths": [
+    {"id": 12, "cause": "energy <= 0", "removed": true},
+    {"id": 23, "cause": "energy <= 0", "attachedParasiteId": 45, "parasiteAutoDetached": true}
+  ]
+}
+```
+**Death rules for attached parasites:**
+- If host dies while parasite attached, parasite auto-detaches
+- Parasite remains at host's last position
+- Sets `parasite.attachedToId = null` and `parasite.status = 'detached'`
+
+**Phase 4: Birth Processing**
 ```json
 {
   "births": [

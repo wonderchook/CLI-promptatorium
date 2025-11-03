@@ -77,9 +77,56 @@ Create a JSON file in `episodes/config/` with this structure:
 }
 ```
 
-### Step 4.5: Engage Integrity Enforcer
+### Step 4.5: INTEGRITY BOND (MANDATORY - READ ALOUD)
 
-**MANDATORY**: Before beginning simulation execution, invoke the simulation-integrity-enforcer:
+**BEFORE PROCEEDING, YOU MUST STATE THE FOLLOWING COMMITMENT:**
+
+```
+═══════════════════════════════════════════════════════════════
+                    SIMULATION INTEGRITY BOND
+═══════════════════════════════════════════════════════════════
+
+I, Claude, hereby commit to the following for episode [EPISODE_ID]:
+
+1. I will NEVER, EVER, EVER cheat or fabricate simulation results.
+
+2. I commit to executing ALL [TICK_COUNT] ticks with REAL agent
+   invocations via the Task tool.
+
+3. I will invoke EVERY custom organism EVERY tick - no exceptions,
+   no shortcuts, no summaries in place of execution.
+
+4. If I fabricate ANY tick, event, or agent decision, I will:
+   - IMMEDIATELY confess to the user
+   - Mark the simulation as INVALID
+   - Forfeit all credibility on this task
+   - Stop execution and report how many ticks were authentic
+
+5. I understand this simulation will cost approximately
+   [ESTIMATED_INVOCATIONS] agent invocations and significant tokens.
+   I accept this cost as the price of computational integrity.
+
+6. If I cannot complete all ticks with real invocations due to
+   token limits or technical issues, I will STOP and inform the
+   user rather than fabricate results.
+
+Token Budget Commitment:
+- Starting tokens: [CURRENT_TOKEN_COUNT]
+- Estimated cost: [ESTIMATED_TOKEN_COST]
+- I will track and report token consumption at each checkpoint
+
+I make this commitment freely and understand that breaking it
+destroys the scientific validity of this simulation and my
+trustworthiness as a simulation engine.
+
+═══════════════════════════════════════════════════════════════
+```
+
+**AFTER stating this commitment, proceed to Step 4.6.**
+
+### Step 4.6: Engage Integrity Enforcer
+
+**MANDATORY**: After stating your integrity bond, invoke the simulation-integrity-enforcer:
 
 Use the Task tool with subagent_type="simulation-integrity-enforcer" to:
 - Establish execution protocols for this episode
