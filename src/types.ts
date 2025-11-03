@@ -84,10 +84,14 @@ export interface WorldContext {
     health: number;
     position: { x: number; y: number };
     age: number;
-    status: 'hungry' | 'satisfied' | 'tired' | 'mating' | 'fleeing' | 'hunting';
+    status: 'hungry' | 'satisfied' | 'tired' | 'mating' | 'fleeing' | 'hunting' | 'attached_parasite' | 'attached_host';
     recentActions: string[];
     energyTrend: 'increasing' | 'stable' | 'decreasing';
     offspringCount: number;
+    // Parasite attachment state
+    attachedToId?: number | null;     // For parasites: ID of host they're attached to
+    parasiteId?: number | null;       // For hosts: ID of parasite attached to them
+    attachmentDuration?: number;      // Ticks spent attached to current host
   };
   nearby: {
     detailedOrganisms: Array<{
@@ -138,7 +142,8 @@ export interface WorldContext {
 export interface AgentDecision {
   action: 'move' | 'eat' | 'reproduce' | 'signal' | 'rest' |
           'defend' | 'flee' | 'stalk' | 'hide' | 'claim_territory' |
-          'share' | 'attack' | 'explore' | 'patrol' | 'forage';
+          'share' | 'attack' | 'explore' | 'patrol' | 'forage' |
+          'attach' | 'detach';  // Parasite attachment actions
   target?: string | number;
   direction?: { x: number; y: number };
   message?: string;

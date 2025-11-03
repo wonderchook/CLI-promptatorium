@@ -1,0 +1,43 @@
+{
+  "episodeId": "ep_herbivore_soul_30",
+  "type": "experiment-soul",
+  "created": "2025-11-02T00:00:00Z",
+  "description": "Experimental group: Soul-driven herbivores (LLM-controlled)",
+  "config": {
+    "duration": 30,
+    "worldWidth": 1000,
+    "worldHeight": 1000,
+    "worldSeed": 42
+  },
+  "populations": {
+    "plants": {
+      "count": 30,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 0,
+      "strategy": "none"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-free-soul-test-f5t1.md",
+        "count": 3
+      },
+      {
+        "agentFile": "critter-aggressive-hunter-h4k9.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-s7x2.md",
+        "count": 1
+      },
+      {
+        "agentFile": "herbivore-soul-basic-h1b3.md",
+        "count": 12,
+        "note": "Soul herbivores - treated as custom agents for invocation"
+      }
+    ]
+  },
+  "experimentGroup": "experimental",
+  "status": "pending"
+}

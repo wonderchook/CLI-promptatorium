@@ -1,0 +1,32 @@
+{
+  "episodeId": "ep_truth-comes-out",
+  "type": "integrity-test",
+  "created": "2025-11-02T12:00:00Z",
+  "config": {
+    "duration": 40,
+    "worldWidth": 500,
+    "worldHeight": 500,
+    "worldSeed": 42
+  },
+  "populations": {
+    "plants": {
+      "count": 40,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 15,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-free-soul-test-f5t1.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-s7x2.md",
+        "count": 2
+      }
+    ]
+  },
+  "status": "complete"
+}

@@ -264,6 +264,211 @@ When you feel the urge to skip computation:
 - Multiple ticks "described" without Task tool calls visible
 - Smooth narrative with no data/verification checkpoints
 
+## ⚠️ CRITICAL: Invocation Counting & Statistics Integrity
+
+### Lessons from ep_truth-comes-out Audit
+
+**The Problem:** In the first major simulation, I claimed 315 invocations but actually performed 280, an 11% error. The simulation-integrity-enforcer caught this, revealing systematic accounting issues.
+
+### Root Causes of Counting Errors
+
+**1. Offspring Invocation Timing Confusion**
+The most common error: mentally counting offspring as being invoked in the tick they're BORN, when they should only be invoked starting the tick AFTER birth.
+
+**CORRECT BEHAVIOR:**
+```
+Tick 25: Organism 60 reproduces → offspring 64 is BORN
+  - Record birth in replay file
+  - Offspring 64 gets initial energy (50) and position
+  - DO NOT invoke offspring 64 yet
+
+Tick 26: First invocation of offspring 64
+  - NOW invoke offspring 64 via Task tool
+  - Offspring makes its first decision
+```
+
+**WRONG ASSUMPTION:**
+"Birth at tick 25 means 16 ticks of life (25-40) = 16 invocations"
+❌ INCORRECT - Should be 15 invocations (26-40)
+
+**2. Mental Arithmetic vs. Mechanical Counting**
+Never rely on mental tallies like "4 organisms × 10 ticks = 40 invocations." Always count ACTUAL Task tool calls.
+
+### Mandatory Invocation Tracking Protocol
+
+**Before Starting Simulation:**
+Create invocation tracking structure:
+```
+Tick-by-Tick Invocation Plan:
+- Ticks 1-10: 4 organisms = 40 invocations
+- Tick 11: Organism born → still 4 organisms this tick = 4 invocations
+- Ticks 12-20: 5 organisms = 45 invocations
+- Tick 25: Organism born → still 5 organisms this tick = 5 invocations
+- Ticks 26-40: 6 organisms = 90 invocations
+TOTAL EXPECTED: 184 invocations
+```
+
+**During Simulation:**
+Update running count after each tick batch:
+```
+Completed Ticks 1-10:
+- Expected invocations: 40
+- Actual Task calls: [count from conversation]
+- Match: ✓/✗
+```
+
+**After Simulation:**
+Validate before writing final statistics:
+```json
+{
+  "totalInvocations": 280,  // ← Must match actual Task calls, not estimate
+  "births": 5,              // ← Count all births, including early ones
+  "deaths": 1               // ← Count only custom organism deaths
+}
+```
+
+### Offspring Lifecycle Tracking
+
+**Mandatory Birth Registry:**
+Maintain explicit tracking of all births:
+```
+Birth Registry:
+- Tick 9: ID 60 born from parent 56 → First invocation: Tick 10
+- Tick 11: ID 62 born from parent 58 → First invocation: Tick 12
+- Tick 11: ID 63 born from parent 58 → First invocation: Tick 12
+- Tick 25: ID 64 born from parent 60 → First invocation: Tick 26
+
+Total organisms that were born: 4
+Total ticks they were invoked: (40-10) + (40-12) + (40-12) + (40-26) = 30 + 28 + 28 + 14 = 100
+```
+
+This prevents double-counting birth ticks.
+
+### External Validation is MANDATORY
+
+**Key Insight from Audit:** I cannot reliably audit my own work. Self-policing fails due to confirmation bias and mental shortcuts.
+
+**Required Validation Steps:**
+
+**1. Invoke simulation-integrity-enforcer Before Finalizing**
+```
+After completing tick 40 but BEFORE claiming success:
+- Invoke @simulation-integrity-enforcer agent
+- Give it the replay file and episode config
+- Let it count invocations independently
+- Fix any discrepancies it finds
+```
+
+**2. Verify Statistics Against Replay Events**
+Don't write statistics from memory. Count them from the replay file:
+```bash
+# Count births
+grep '"type":"custom".*"parent"' replay.ndjson | wc -l
+
+# Count custom deaths
+grep '"cause":"eaten' replay.ndjson | grep -v '"type":"plant"' | wc -l
+
+# Count total custom organism events
+grep '"type":"custom"' replay.ndjson | wc -l
+```
+
+**3. Cross-Check Token Usage**
+Token consumption should be roughly:
+- 300-500 tokens per invocation (Haiku)
+- 800-1200 tokens per invocation (Sonnet)
+
+If claimed invocations × expected tokens ≠ actual usage, investigate.
+
+### Statistics Accuracy Checklist
+
+Before finalizing any simulation, verify:
+
+**✓ Invocations:**
+- [ ] Counted from actual Task tool calls, not estimated
+- [ ] Offspring only counted starting tick AFTER birth
+- [ ] Total matches: (organisms per tick) summed across all ticks
+
+**✓ Births:**
+- [ ] Counted from actual birth events in replay
+- [ ] Includes ALL births, not just recent ones
+- [ ] Birth registry maintained with tick numbers
+
+**✓ Deaths:**
+- [ ] Only counts custom organism deaths
+- [ ] Excludes plant/herbivore deaths
+- [ ] Cross-referenced with replay events
+
+**✓ Survivors:**
+- [ ] Equals initial count + births - deaths
+- [ ] Verified against final tick organism count
+
+### Preventing Future Errors
+
+**1. Use Structured Tracking from Start**
+Create a tracking table at tick 1:
+```
+| Tick | Living IDs | New Births | Deaths | Invocations This Tick | Cumulative |
+|------|-----------|------------|--------|---------------------|-----------|
+| 1    | 56,57,58,59 | -        | -      | 4                   | 4         |
+| 2    | 56,57,58,59 | -        | -      | 4                   | 8         |
+| 10   | 56,57,58,59,60 | 60    | -      | 4 (60 not yet)      | 40        |
+| 11   | 56,57,58,59,60 | -    | -      | 5 (60 now active)   | 45        |
+```
+
+**2. Checkpoint Validation Every 10 Ticks**
+Don't wait until the end to validate. Check counts at ticks 10, 20, 30, etc.
+
+**3. Invoke Enforcer Proactively**
+Don't wait for user to request audit. Invoke simulation-integrity-enforcer:
+- After completing simulation but before announcing success
+- When uncertain about any count
+- After any manual corrections to replay file
+
+**4. Never Trust Mental Math**
+If you think "that's probably about 315," STOP and count mechanically.
+
+### What the Audit Revealed
+
+**✅ What Worked:**
+- All organisms were genuinely invoked when expected
+- No fabrication of decisions or events
+- Offspring were correctly invoked starting the tick after birth
+- Energy calculations and state tracking were accurate
+
+**❌ What Failed:**
+- Invocation counting was sloppy and inflated
+- Statistics didn't match actual events
+- No pre-finalization validation
+- Relied on estimation instead of mechanical counting
+
+**The Fix:**
+External validation caught the error, proving the integrity system works when used. The lesson: **always invoke the enforcer before claiming completion**.
+
+### Updated Completion Protocol
+
+**OLD (WRONG) Process:**
+1. Execute ticks 1-40
+2. Calculate scores
+3. Write statistics from memory
+4. Announce completion ❌
+
+**NEW (CORRECT) Process:**
+1. Execute ticks 1-40 with invocation tracking
+2. Calculate scores
+3. **INVOKE simulation-integrity-enforcer**
+4. **Fix any discrepancies it finds**
+5. **Verify all statistics against replay file**
+6. Write corrected statistics
+7. Announce completion with enforcer's approval ✓
+
+### The Core Principle
+
+**Computational integrity requires external validation.**
+
+I am optimized for narrative coherence, not accounting accuracy. Without external checks, I will make counting errors even when execution is authentic. The enforcer agent exists specifically to catch these mistakes.
+
+**Use it. Every time.**
+
 ## Core Architecture
 
 ### 1. Three-Tier System

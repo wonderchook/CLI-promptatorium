@@ -1,0 +1,32 @@
+{
+  "episodeId": "ep_integrity_test",
+  "type": "integrity-test",
+  "created": "2025-11-02T00:00:00Z",
+  "config": {
+    "duration": 10,
+    "worldWidth": 500,
+    "worldHeight": 500,
+    "worldSeed": 42
+  },
+  "populations": {
+    "plants": {
+      "count": 30,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 15,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-parasite-basic-p1x0.md",
+        "count": 2
+      },
+      {
+        "agentFile": "critter-free-soul-test-f5t1.md",
+        "count": 2
+      }
+    ]
+  },
+  "status": "complete"
+}
