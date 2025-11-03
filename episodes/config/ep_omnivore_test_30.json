@@ -1,0 +1,61 @@
+{
+  "episodeId": "ep_omnivore_test_30",
+  "type": "omnivore-validation",
+  "created": "2025-11-02T12:00:00Z",
+  "description": "Test omnivore souls: validate hunting, grazing, dietary variety bonus, and tactical adaptation",
+  "config": {
+    "duration": 30,
+    "worldWidth": 1000,
+    "worldHeight": 1000,
+    "worldSeed": 123
+  },
+  "populations": {
+    "plants": {
+      "count": 20,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 8,
+      "strategy": "random",
+      "note": "Using deterministic herbivores for baseline comparison"
+    },
+    "customAgents": [
+      {
+        "agentFile": "omnivore-soul-balanced-om01.md",
+        "count": 4,
+        "note": "Primary test subjects - should demonstrate both hunting and grazing"
+      },
+      {
+        "agentFile": "critter-aggressive-hunter-h4k9.md",
+        "count": 2,
+        "note": "Pure carnivores for competition comparison"
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-s7x2.md",
+        "count": 1,
+        "note": "Scavenger for baseline opportunistic behavior"
+      }
+    ]
+  },
+  "testObjectives": {
+    "primary": [
+      "Omnivores demonstrate BOTH hunting and grazing behaviors",
+      "Dietary variety bonus triggers at least once per omnivore",
+      "Omnivores survive at competitive rates vs pure carnivores",
+      "Tactical switching based on threat level"
+    ],
+    "secondary": [
+      "Omnivores outperform pure specialists in mixed environments",
+      "At least one omnivore reproduces",
+      "Energy efficiency competitive with or better than specialists"
+    ]
+  },
+  "successCriteria": {
+    "minOmnivoresEatPlants": 3,
+    "minOmnivoresHuntPrey": 2,
+    "minVarietyBonusTriggers": 4,
+    "minOmnivoresSurvive": 2,
+    "expectedOmnivoreScore": "65-80 range"
+  },
+  "status": "pending"
+}
