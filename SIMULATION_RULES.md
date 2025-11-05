@@ -150,7 +150,18 @@ traits: {
 **Behavior**: Form mutual relationships
 **Special**: Both organisms gain +10% energy efficiency when paired
 
-## Enhanced Action System - MANDATORY STRUCTURED FORMAT
+## Action System Configuration
+
+Episodes can use one of two action systems, specified in the episode config under `experimental.actionSystem`:
+
+- **`"explicit"`** (default): Fixed action list, same for all organisms
+- **`"trait-based"`** (experimental): Dynamic actions based on organism traits
+
+---
+
+## Explicit Action System (Default)
+
+**Used when:** `experimental.actionSystem: "explicit"` OR no experimental section
 
 ### ⚠️ CRITICAL: Limited Action Vocabulary
 
@@ -239,6 +250,124 @@ If parsing fails, organism takes no action and loses 2 energy.
 - Cost: `0.5` energy
 - Effect: Sets `self.attachedToId = null` and `host.parasiteId = null`
 - Position: Parasite remains at current location, resumes independent movement
+
+---
+
+## Trait-Based Action System (Experimental)
+
+**Used when:** `experimental.actionSystem: "trait-based"`
+
+In this system, organisms get different actions based on their traits. This creates more realistic behavior where capabilities match personality.
+
+### Core Actions (Always Available)
+
+All organisms can always use these:
+
+1. **MOVE(direction, speed)** - Same as explicit system
+2. **REST()** - Same as explicit system
+3. **REPRODUCE()** - Same as explicit system (requires energy >= 110)
+
+### Trait-Gated Actions (Conditional)
+
+These actions only appear if the organism has sufficient trait values:
+
+#### HIDE()
+**Requirements:** `camouflage >= 0.7` (configurable via `experimental.traitThresholds.hide`)
+
+**Effect:**
+- Detection radius reduced by `camouflage * 100%` (e.g., 0.9 camouflage = 90% reduction)
+- Normal detection: 200 pixels → With HIDE at 0.9 camouflage: 20 pixels
+- Status: "hidden" persists until organism uses MOVE or ATTACK
+
+**Cost:** `1.0 * biome.energyCost` energy/tick while hidden
+
+**Example:**
+```
+Phantom (camouflage: 0.9) uses HIDE()
+→ Detection radius: 200px → 20px
+→ Cost: 1 energy/tick
+→ Prey within 19px won't detect the phantom
+```
+
+**Format:** `ACTION: HIDE()`
+
+---
+
+#### ATTACK(targetId)
+**Requirements:** `aggression >= 0.6` (configurable via `experimental.traitThresholds.attack`)
+
+**Effect:**
+- Deal `strength * 40` damage to target
+- If target health reaches 0, target dies and becomes food (+50 energy when eaten)
+- Reveals hidden status (if organism was hidden)
+
+**Range:** 15 pixels
+**Cost:** `3.0 * biome.energyCost` energy
+
+**Example:**
+```
+Hunter (aggression: 0.8, strength: 0.7) uses ATTACK(herbivore_12)
+→ Damage: 0.7 * 40 = 28
+→ Herbivore health: 100 → 72
+→ Cost: 3 energy
+```
+
+**Format:** `ACTION: ATTACK(targetId)`
+
+---
+
+#### SIGNAL(message, range)
+**Requirements:** `social >= 0.5` (configurable via `experimental.traitThresholds.signal`)
+
+**Effect:** Same as explicit system
+**Cost:** `0.1 * (range/100)` energy
+**Format:** `ACTION: SIGNAL("message", range)`
+
+---
+
+#### ATTACH(targetId) & DETACH()
+**Requirements:** `type === 'parasite'` (type-based, not trait-based)
+
+**Effect:** Same as explicit system
+**Format:** `ACTION: ATTACH(targetId)` or `ACTION: DETACH()`
+
+---
+
+### How Agents See Their Actions
+
+Each tick, agents receive a personalized action list:
+
+```markdown
+YOUR AVAILABLE ACTIONS THIS TICK:
+
+Core (always available):
+- MOVE(direction, speed) - Travel 0.5-3.0 pixels/tick
+- REST() - Gain 2.5 energy
+- REPRODUCE() [energy: 85/110 - not yet available]
+
+Trait-enabled (based on your capabilities):
+- HIDE() [camouflage: 0.9 - excellent concealment ability]
+- ATTACK(targetId) [aggression: 0.7 - capable combatant]
+
+Choose ONE action.
+```
+
+### Action Validation
+
+When processing agent responses:
+
+1. **Check if action is core** → Execute immediately
+2. **Check if action is trait-gated** → Verify trait threshold
+   - If trait sufficient → Execute
+   - If trait insufficient → Reject with error: `"HIDE requires camouflage >= 0.7, you have 0.3"`
+3. **Check if action is unlisted** → Reject with error: `"TELEPORT is not a valid action"`
+
+### Benefits Over Explicit System
+
+✅ **No more invalid action attempts** - Phantoms get HIDE naturally
+✅ **Personality matches capabilities** - Aggressive organisms can ATTACK, social ones can SIGNAL
+✅ **No manual sync needed** - Traits automatically grant actions
+✅ **More realistic behavior** - A lazy cat (low aggression) can't ATTACK even if it wanted to
 
 ### Combo Actions
 Organisms can chain two actions per tick:
