@@ -189,13 +189,17 @@ Custom agents MUST respond with EXACTLY ONE of these enumerated actions:
    - No parameters (net gain 2.5 energy)
    - Example: `ACTION: REST()`
 
-6. **ATTACH**: `ACTION: ATTACH(targetId)`
+6. **HIDE**: `ACTION: HIDE()`
+   - No parameters (reduces detection radius based on camouflage trait)
+   - Example: `ACTION: HIDE()`
+
+7. **ATTACH**: `ACTION: ATTACH(targetId)`
    - targetId: INTEGER (must exist in nearby organisms and be within 5 pixels)
    - Requirements: Target must not already have parasite attached, parasite must not already be attached
    - Effect: Parasite attaches to host, moves with host automatically, becomes hard to detect
    - Example: `ACTION: ATTACH(34)`
 
-7. **DETACH**: `ACTION: DETACH()`
+8. **DETACH**: `ACTION: DETACH()`
    - No parameters (parasite must currently be attached)
    - Effect: Parasite detaches from host, resumes independent movement
    - Example: `ACTION: DETACH()`
@@ -208,7 +212,7 @@ Custom agents MUST respond with EXACTLY ONE of these enumerated actions:
 
 **Parser Requirements:**
 ```regex
-^ACTION:\s+(MOVE|EAT|REPRODUCE|SIGNAL|REST|ATTACH|DETACH)\((.*)\)\s*$
+^ACTION:\s+(MOVE|EAT|REPRODUCE|SIGNAL|REST|HIDE|ATTACH|DETACH)\((.*)\)\s*$
 ```
 If parsing fails, organism takes no action and loses 2 energy.
 
@@ -237,6 +241,15 @@ If parsing fails, organism takes no action and loses 2 energy.
 - Energy gain: `3` (base gain)
 - Energy cost: `0.5` (metabolic)
 - Net gain: `2.5` energy/tick
+
+**HIDE()**
+- Detection radius reduction: `self.traits.camouflage * 100%`
+  - Example: camouflage 0.8 → 80% reduction → 200px becomes 40px
+  - Example: camouflage 0.3 → 30% reduction → 200px becomes 140px
+- Cost: `1.0 * biome.energyCost` energy per tick while hidden
+- Status: `"hidden"` persists until organism uses MOVE, ATTACK, EAT, or REPRODUCE
+- Effect: Other organisms can only detect this organism within reduced radius
+- While hidden: All actions except REST break the hidden status
 
 **ATTACH(targetId)**
 - Range check: `distance(self, target) <= 5`
