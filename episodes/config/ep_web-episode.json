@@ -1,0 +1,44 @@
+{
+  "episodeId": "ep_web-episode",
+  "type": "battle",
+  "created": "2025-11-06T00:00:00Z",
+  "config": {
+    "duration": 30,
+    "worldWidth": 750,
+    "worldHeight": 750,
+    "worldSeed": 42069
+  },
+  "populations": {
+    "plants": {
+      "count": 30,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 12,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-aggressive-hunter-soul-h8v3.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-parasite-soul-p7x4.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-orange-cat-soul-m7w4.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-free-soul-test-f5t1.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-forest-phantom-soul-k4m8.md",
+        "count": 1
+      }
+    ]
+  },
+  "status": "running"
+}
