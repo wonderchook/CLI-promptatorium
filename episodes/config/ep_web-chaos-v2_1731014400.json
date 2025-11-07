@@ -1,0 +1,173 @@
+{
+  "episodeId": "ep_web-chaos-v2_1731014400",
+  "type": "chaotic-mixed-strategies-compact",
+  "created": "2025-11-07T20:40:00Z",
+  "description": "A compact, intense 20-tick chaos episode featuring the full diversity: aggressive hunters, parasites, lazy cats, squeaky colonies, phantom ambushers, and cautious scavengers. Smaller world, higher interaction density, authentic execution!",
+  "config": {
+    "duration": 20,
+    "worldWidth": 600,
+    "worldHeight": 600,
+    "worldSeed": 2025110720,
+    "biomes": {
+      "primary": "meadow",
+      "distribution": "patches",
+      "secondaryBiomes": ["forest"]
+    },
+    "environment": {
+      "startingSeason": "spring",
+      "weatherPattern": "variable",
+      "dayNightCycle": true,
+      "randomEvents": {
+        "enabled": false,
+        "frequency": "normal"
+      }
+    }
+  },
+  "populations": {
+    "plants": {
+      "count": 25,
+      "strategy": "clustered",
+      "traits": {
+        "energyEfficiency": 0.8,
+        "reproductionRate": 0.5
+      }
+    },
+    "herbivores": {
+      "count": 15,
+      "strategy": "herds",
+      "traits": {
+        "speed": 0.5,
+        "visionRange": 0.6,
+        "fearResponse": 0.7,
+        "energyEfficiency": 0.5
+      }
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-aggressive-hunter-soul-h8v3.md",
+        "count": 2,
+        "traits": {
+          "speed": 0.8,
+          "strength": 0.8,
+          "camouflage": 0.3,
+          "visionRange": 0.7,
+          "aggression": 0.9,
+          "patience": 0.3,
+          "energyEfficiency": 0.5,
+          "cooperation": 0.2
+        }
+      },
+      {
+        "agentFile": "critter-parasite-soul-p7x4.md",
+        "count": 2,
+        "traits": {
+          "speed": 0.4,
+          "strength": 0.2,
+          "camouflage": 0.9,
+          "visionRange": 0.6,
+          "aggression": 0.1,
+          "patience": 0.8,
+          "energyEfficiency": 0.9,
+          "cooperation": 0.3,
+          "attachmentBonus": 1.5
+        }
+      },
+      {
+        "agentFile": "critter-orange-cat-soul-m7w4.md",
+        "count": 1,
+        "traits": {
+          "speed": 0.6,
+          "strength": 0.7,
+          "camouflage": 0.5,
+          "visionRange": 0.6,
+          "aggression": 0.4,
+          "patience": 0.9,
+          "energyEfficiency": 0.8,
+          "cooperation": 0.1,
+          "sunlightBonus": 1.2
+        }
+      },
+      {
+        "agentFile": "critter-squeaky-colony-soul-f3p9.md",
+        "count": 3,
+        "traits": {
+          "speed": 0.7,
+          "strength": 0.3,
+          "camouflage": 0.6,
+          "visionRange": 0.7,
+          "aggression": 0.2,
+          "patience": 0.5,
+          "energyEfficiency": 0.6,
+          "cooperation": 0.9,
+          "socialBonus": 1.3
+        }
+      },
+      {
+        "agentFile": "critter-forest-phantom-soul-k4m8.md",
+        "count": 1,
+        "traits": {
+          "speed": 0.7,
+          "strength": 0.7,
+          "camouflage": 0.95,
+          "visionRange": 0.8,
+          "aggression": 0.6,
+          "patience": 0.95,
+          "energyEfficiency": 0.7,
+          "cooperation": 0.2,
+          "ambushBonus": 1.5
+        }
+      },
+      {
+        "agentFile": "critter-cautious-scavenger-soul-s9k2.md",
+        "count": 2,
+        "traits": {
+          "speed": 0.6,
+          "strength": 0.4,
+          "camouflage": 0.7,
+          "visionRange": 0.8,
+          "aggression": 0.3,
+          "patience": 0.8,
+          "energyEfficiency": 0.7,
+          "cooperation": 0.5
+        }
+      }
+    ]
+  },
+  "objectives": {
+    "primary": "survival",
+    "secondary": [
+      "maintain_diversity",
+      "maximize_interactions",
+      "social_dynamics"
+    ],
+    "scoring": {
+      "weights": {
+        "survival": 0.25,
+        "energy": 0.15,
+        "reproduction": 0.15,
+        "adaptation": 0.10,
+        "cooperation": 0.10,
+        "territory": 0.05,
+        "efficiency": 0.10,
+        "innovation": 0.05,
+        "diversity": 0.05
+      }
+    }
+  },
+  "status": "complete",
+  "completedAt": "2025-11-07T20:45:00Z",
+  "results": {
+    "survivors": 14,
+    "winner": {
+      "id": 45,
+      "agent": "critter-orange-cat-soul-m7w4",
+      "score": 73.2,
+      "strategy": "efficiency"
+    },
+    "totalInvocations": 263,
+    "births": 5,
+    "deaths": 2,
+    "validationStatus": "AUTHENTIC_WITH_ERRORS",
+    "note": "Invocation count corrected from 289 to 263 after validator audit"
+  }
+}
