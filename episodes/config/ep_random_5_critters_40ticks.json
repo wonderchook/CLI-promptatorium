@@ -1,0 +1,44 @@
+{
+  "episodeId": "ep_random_5_critters_40ticks",
+  "type": "random-selection",
+  "created": "2025-11-14T00:00:00Z",
+  "config": {
+    "duration": 40,
+    "worldWidth": 1000,
+    "worldHeight": 1000,
+    "worldSeed": 42
+  },
+  "populations": {
+    "plants": {
+      "count": 15,
+      "strategy": "random"
+    },
+    "herbivores": {
+      "count": 8,
+      "strategy": "random"
+    },
+    "customAgents": [
+      {
+        "agentFile": "critter-orange-cat-soul-m7w4.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-forest-phantom-soul-k4m8.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-aggressive-hunter-soul-h8v3.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-squeaky-colony-soul-f3p9.md",
+        "count": 1
+      },
+      {
+        "agentFile": "critter-parasite-soul-p7x4.md",
+        "count": 1
+      }
+    ]
+  },
+  "status": "running"
+}
