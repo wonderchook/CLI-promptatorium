@@ -214,16 +214,29 @@ For EACH tick from 1 to duration:
 
 1. **Update plants**: +2 energy each, reproduce if energy >= 120
 2. **Update herbivores**: Deterministic AI (move toward plants, eat within 15px, reproduce at 90 energy)
-3. **Invoke ALL custom agents IN PARALLEL**:
+3. **Evaluate instinct gates for ALL custom organisms**:
+   - For each organism, build gate context:
+     - `self`: energy, health, position
+     - `nearestPredator`: {id, distance, direction} if any predator within 200px
+     - `nearestFood`: {id, distance, type} if any food within 50px
+   - Check gates in priority order (highest first: critical_rest=100, flee_predator=90, opportunistic_eat=80)
+   - Apply trait modulation to thresholds (see SIMULATION_RULES.md for formulas)
+   - Check suppression rules (e.g., aggression >= 0.95 suppresses flee_predator)
+   - If gate fires:
+     - Execute gate action immediately
+     - Record with `instinctGate` field in replay
+     - Mark organism as "gate-handled" (skip agent invocation)
+     - Set reasoning to "Instinct: [Gate Name]"
+4. **Invoke remaining custom agents IN PARALLEL** (those not handled by gates):
    - Build context for each organism (nearby plants, herbivores, custom agents, environment)
-   - Use Task tool to invoke EVERY custom organism's agent file
+   - Use Task tool to invoke EVERY non-gate-handled organism's agent file
    - Send ALL invocations in a SINGLE message (parallel execution)
    - Wait for ALL responses
-4. **Process agent decisions**:
+5. **Process agent decisions**:
    - Parse ACTION and REASONING from each response
    - Validate actions (e.g., EAT requires <= 15px distance)
    - Execute valid actions, log failures
-5. **Handle reproduction**:
+6. **Handle reproduction**:
    - Add offspring to organism list for NEXT tick
    - **CRITICAL**: After any REPRODUCE action, invoke integrity enforcer:
      ```
@@ -231,10 +244,23 @@ For EACH tick from 1 to duration:
      - subagent_type: "simulation-integrity-enforcer"
      - prompt: "Reproduction event: Organism [ID] created offspring [ID]. Confirm offspring added to invocation list for tick [N+1]."
      ```
-6. **Remove dead organisms**: energy <= 0
-7. **Record tick** to replay NDJSON file
+7. **Remove dead organisms**: energy <= 0
+8. **Record tick** to replay NDJSON file
+   - Include `instinctGate` field for gate-triggered actions
+   - Track gate activation statistics
 
 **Repeat for EVERY tick - no shortcuts or summaries.**
+
+**Gate Tracking**: After final tick, include instinct gate summary in completion record:
+```json
+{
+  "instinctGates": {
+    "totalActivations": [count],
+    "byGate": {"flee_predator": N, "critical_rest": N, "opportunistic_eat": N},
+    "invocationsSaved": [count]
+  }
+}
+```
 
 ### Step 8: Calculate Scores
 

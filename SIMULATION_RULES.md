@@ -901,3 +901,204 @@ Expected consumption patterns (approximate):
 This simulation is a scientific experiment in multi-agent interaction. Every reported outcome MUST derive from actual computation. The integrity of results depends on authentic execution of every single agent decision across every tick.
 - Environmental cycles add variety
 - Agent models compete on strategy depth
+
+## Instinct Gate System
+
+Instinct gates are **reflexive responses** that bypass full agent reasoning for urgent survival situations. They make organisms feel alive—reacting instantly to danger or opportunity—while preserving full "soul" invocations for complex decisions.
+
+### How Gates Work
+
+```
+Standard flow:
+  Context → Full Agent Invocation → ACTION
+
+With instinct gates:
+  Context → Gate Check → [fires?] → Reflex ACTION (skip agent)
+                      → [no fire] → Full Agent Invocation → ACTION
+```
+
+**Key properties:**
+- Gates are checked in **priority order** (highest first)
+- **Only ONE gate** can fire per tick per organism
+- Gate activation **bypasses agent invocation** for that tick
+- All gate activations are **logged to replay** with full trigger details
+
+### Default Gates
+
+| Gate ID | Priority | Condition | Action | Trait Modulation |
+|---------|----------|-----------|--------|------------------|
+| `critical_rest` | 100 | `self.energy < 15` | `REST()` | threshold × (1 - starvationResistance × 0.5) |
+| `flee_predator` | 90 | predator within threshold | `MOVE($away_from_threat, $max_speed)` | threshold = 50 × (1 - fearResponse × 0.6) × (1 + aggression × 0.4) |
+| `opportunistic_eat` | 80 | food within 15px AND `self.energy < 50` | `EAT($nearest_food)` | energy threshold × (1 + patience × 0.3) |
+
+### Trait Modulation
+
+Gates have dynamic thresholds based on organism traits. This creates emergent personality—timid organisms flee early, bold ones stand their ground.
+
+**Example: flee_predator gate**
+
+Base threshold: 50 pixels
+
+For a **timid organism** (fearResponse=0.9, aggression=0.1):
+```
+effectiveThreshold = 50 × (1 + 0.9 × 0.6) × (1 - 0.1 × 0.4)
+                   = 50 × 1.54 × 0.96
+                   = 73.9 pixels (flees early!)
+```
+
+For a **bold organism** (fearResponse=0.2, aggression=0.8):
+```
+effectiveThreshold = 50 × (1 + 0.2 × 0.6) × (1 - 0.8 × 0.4)
+                   = 50 × 1.12 × 0.68
+                   = 38.1 pixels (stands ground longer)
+```
+
+For an **extremely aggressive organism** (aggression=0.95+):
+- Gate **suppressed entirely**—organism never auto-flees
+
+### Gate Evaluation Protocol
+
+**Before each agent invocation, evaluate gates:**
+
+```
+For each organism requiring invocation:
+  1. Build gate context:
+     - self.energy, self.health, self.position
+     - nearestPredator: {id, distance, direction} (if any predator within 200px)
+     - nearestFood: {id, distance, type} (if any food within 50px)
+
+  2. For each gate in priority order (highest first):
+     a. Check if gate is enabled for this organism
+     b. Apply trait modulation to thresholds
+     c. Check suppression rules (e.g., aggression >= 0.95 suppresses flee)
+     d. Evaluate condition against modulated thresholds
+     e. If condition TRUE → FIRE gate, skip remaining gates
+
+  3. If gate fired:
+     - Execute gate action
+     - Log to replay with instinctGate field
+     - DO NOT invoke agent for this organism this tick
+
+  4. If no gate fired:
+     - Invoke agent normally via Task tool
+```
+
+### Per-Organism Gate Configuration
+
+Agents can override default gates in their frontmatter:
+
+```yaml
+---
+name: critter-aggressive-hunter-soul-h8v3
+instinctGates:
+  overrides:
+    flee_predator:
+      enabled: false  # This hunter NEVER auto-flees
+    critical_rest:
+      threshold_modifier: 0.5  # Only rests at energy < 7.5 (15 × 0.5)
+  custom:
+    - id: territorial_charge
+      name: Territorial Charge
+      priority: 85
+      condition:
+        type: simple
+        field: nearestRival.distance
+        operator: '<'
+        value: 30
+      action:
+        type: MOVE
+        parameters:
+          direction: $toward_threat
+          speed: $max_speed
+---
+```
+
+**Override options:**
+- `enabled: false` — Disable gate entirely
+- `threshold_modifier: 0.5` — Multiply base threshold (0.5 = half, 2.0 = double)
+
+### Replay Logging
+
+Gate activations are recorded with full detail for replay analysis:
+
+**Tick event with gate activation:**
+```json
+{
+  "id": 42,
+  "type": "custom",
+  "action": "move",
+  "direction": "southwest",
+  "speed": 3.0,
+  "energy": 67.2,
+  "position": {"x": 234, "y": 456},
+  "instinctGate": {
+    "gateId": "flee_predator",
+    "gateName": "Predator Flight Response",
+    "trigger": {
+      "predatorId": 38,
+      "predatorDistance": 28,
+      "predatorDirection": "northeast"
+    },
+    "modulation": {
+      "baseThreshold": 50,
+      "effectiveThreshold": 42,
+      "traitFactors": {
+        "fearResponse": 0.84,
+        "aggression": 0.6
+      }
+    },
+    "agentBypassed": true
+  },
+  "reasoning": "Instinct: Predator Flight Response"
+}
+```
+
+**Summary statistics in completion record:**
+```json
+{
+  "type": "complete",
+  "instinctGates": {
+    "totalActivations": 47,
+    "byGate": {
+      "flee_predator": 23,
+      "opportunistic_eat": 15,
+      "critical_rest": 9
+    },
+    "byOrganism": {
+      "42": {"flee_predator": 5, "opportunistic_eat": 2},
+      "45": {"critical_rest": 4}
+    },
+    "invocationsSaved": 47
+  }
+}
+```
+
+### Special Action Tokens
+
+Gate actions can use special tokens resolved at execution time:
+
+| Token | Meaning | Example Resolution |
+|-------|---------|-------------------|
+| `$away_from_threat` | Direction opposite to nearest predator | "southwest" (if predator is NE) |
+| `$toward_threat` | Direction toward nearest predator | "northeast" |
+| `$max_speed` | Maximum movement speed (3.0) | 3.0 |
+| `$nearest_food` | ID of closest edible organism | 28 |
+| `$nearest_predator` | ID of closest threatening organism | 38 |
+
+### Integrity Considerations
+
+**Gate activations are NOT fabrication** because:
+1. They follow deterministic rules documented here
+2. All trigger conditions are computed from actual world state
+3. Full activation details are logged to replay
+4. No agent "decision" is invented—the reflex is mechanical
+
+**Gate activations DO count as organism turns** but:
+- They do NOT require Task tool invocations
+- They DO update organism state (energy, position)
+- They DO get recorded in replay with full context
+
+**Statistics tracking:**
+- Track `gateActivations` separately from `agentInvocations`
+- Report `invocationsSaved` = gates that prevented Task calls
+- Include gate breakdown in completion summary

@@ -232,3 +232,231 @@ export interface OrganismArchetype {
     movementCost: number;
   };
 }
+
+// ============================================================================
+// Instinct Gate System Types
+// ============================================================================
+
+/**
+ * GateCondition defines when an instinct gate fires.
+ * Supports simple comparisons or compound AND/OR logic.
+ */
+export interface GateCondition {
+  type: 'simple' | 'compound';
+  /** For simple conditions: the field to check (e.g., 'self.energy', 'nearestPredator.distance') */
+  field?: string;
+  /** Comparison or logical operator */
+  operator: '<' | '<=' | '>' | '>=' | '==' | '!=' | 'AND' | 'OR';
+  /** For simple conditions: the threshold value */
+  value?: number | string;
+  /** For compound conditions: nested conditions */
+  clauses?: GateCondition[];
+}
+
+/**
+ * GateAction defines what happens when a gate fires.
+ * Uses special tokens like "$away_from_threat" for dynamic resolution.
+ */
+export interface GateAction {
+  type: 'MOVE' | 'EAT' | 'REST' | 'HIDE';
+  parameters?: {
+    /** Direction: compass direction, organism ID, or special token like "$away_from_threat" */
+    direction?: string;
+    /** Speed: number or special token like "$max_speed" */
+    speed?: number | string;
+    /** Target: organism ID or special token like "$nearest_food" */
+    target?: string;
+  };
+}
+
+/**
+ * TraitModulation allows gates to have dynamic thresholds based on organism traits.
+ * Makes timid organisms flee earlier, bold organisms ignore threats longer.
+ */
+export interface TraitModulation {
+  /** Which field in the condition to modulate (e.g., 'value' for threshold) */
+  thresholdField: string;
+  /** List of trait modifiers to apply */
+  modifiers: Array<{
+    /** Which trait affects this gate */
+    trait: keyof OrganismTraits;
+    /** Whether high trait values lower or raise the threshold */
+    effect: 'lower' | 'raise';
+    /** Strength of the effect (0-1 scale, applied as multiplier) */
+    factor: number;
+  }>;
+  /** Conditions under which this gate is completely suppressed */
+  suppressedBy?: Array<{
+    trait: keyof OrganismTraits;
+    /** Gate suppressed when trait >= this threshold */
+    threshold: number;
+  }>;
+}
+
+/**
+ * InstinctGate represents a reflexive response that bypasses full agent reasoning.
+ * Gates fire based on priority order - highest priority checked first, only one fires per tick.
+ */
+export interface InstinctGate {
+  /** Unique identifier for the gate (e.g., 'flee_predator', 'critical_rest') */
+  id: string;
+  /** Human-readable name (e.g., 'Predator Flight Response') */
+  name: string;
+  /** Priority order - higher = checked first. Only ONE gate fires per tick. */
+  priority: number;
+  /** Whether this gate is active (default: true) */
+  enabled?: boolean;
+  /** Condition that triggers this gate */
+  condition: GateCondition;
+  /** Action to take when gate fires */
+  action: GateAction;
+  /** Optional trait-based threshold modulation */
+  traitModulation?: TraitModulation;
+}
+
+/**
+ * Per-organism gate configuration that can be specified in agent frontmatter.
+ */
+export interface InstinctGateConfig {
+  /** Override settings for default gates */
+  overrides?: Record<string, {
+    /** Disable this gate entirely */
+    enabled?: boolean;
+    /** Multiply the base threshold (e.g., 0.5 = half threshold) */
+    threshold_modifier?: number;
+  }>;
+  /** Custom gates specific to this organism */
+  custom?: InstinctGate[];
+}
+
+/**
+ * GateActivation records when a gate fires, for replay logging.
+ */
+export interface GateActivation {
+  /** Which gate fired */
+  gateId: string;
+  /** Human-readable gate name */
+  gateName: string;
+  /** What triggered the gate (predator ID, distance, energy level, etc.) */
+  trigger: Record<string, any>;
+  /** Details of trait modulation applied, if any */
+  modulation?: {
+    baseThreshold: number;
+    effectiveThreshold: number;
+    traitFactors: Record<string, number>;
+  };
+  /** Confirms no agent invocation occurred */
+  agentBypassed: boolean;
+}
+
+/**
+ * Default instinct gates available to all organisms.
+ * These can be overridden or suppressed via agent frontmatter.
+ */
+export const DEFAULT_INSTINCT_GATES: InstinctGate[] = [
+  {
+    id: 'critical_rest',
+    name: 'Critical Energy Rest',
+    priority: 100,
+    enabled: true,
+    condition: {
+      type: 'simple',
+      field: 'self.energy',
+      operator: '<',
+      value: 15
+    },
+    action: {
+      type: 'REST'
+    },
+    traitModulation: {
+      thresholdField: 'value',
+      modifiers: [
+        {
+          trait: 'starvationResistance',
+          effect: 'lower',
+          factor: 0.5  // High starvationResistance = lower threshold (can push harder)
+        }
+      ]
+    }
+  },
+  {
+    id: 'flee_predator',
+    name: 'Predator Flight Response',
+    priority: 90,
+    enabled: true,
+    condition: {
+      type: 'simple',
+      field: 'nearestPredator.distance',
+      operator: '<',
+      value: 50  // Base threshold: 50 pixels
+    },
+    action: {
+      type: 'MOVE',
+      parameters: {
+        direction: '$away_from_threat',
+        speed: '$max_speed'
+      }
+    },
+    traitModulation: {
+      thresholdField: 'value',
+      modifiers: [
+        {
+          trait: 'fearResponse',
+          effect: 'raise',  // High fearResponse = higher threshold (flee earlier)
+          factor: 0.6
+        },
+        {
+          trait: 'aggression',
+          effect: 'lower',  // High aggression = lower threshold (flee later)
+          factor: 0.4
+        }
+      ],
+      suppressedBy: [
+        {
+          trait: 'aggression',
+          threshold: 0.95  // Extremely aggressive organisms never flee
+        }
+      ]
+    }
+  },
+  {
+    id: 'opportunistic_eat',
+    name: 'Opportunistic Feeding',
+    priority: 80,
+    enabled: true,
+    condition: {
+      type: 'compound',
+      operator: 'AND',
+      clauses: [
+        {
+          type: 'simple',
+          field: 'nearestFood.distance',
+          operator: '<=',
+          value: 15  // Within eating range
+        },
+        {
+          type: 'simple',
+          field: 'self.energy',
+          operator: '<',
+          value: 50  // Only when hungry
+        }
+      ]
+    },
+    action: {
+      type: 'EAT',
+      parameters: {
+        target: '$nearest_food'
+      }
+    },
+    traitModulation: {
+      thresholdField: 'self.energy',
+      modifiers: [
+        {
+          trait: 'patience',
+          effect: 'lower',  // High patience = lower energy threshold (waits until hungrier)
+          factor: 0.3
+        }
+      ]
+    }
+  }
+];

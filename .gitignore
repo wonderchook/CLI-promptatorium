@@ -33,6 +33,16 @@ Thumbs.db
 
 # Generated replay files (large, can be regenerated)
 episodes/replay/*.ndjson
+episodes/replay_local_cli/*.ndjson
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Development session logs
+COMPACT_AGENTS_STATUS.md
+episodes/analysis/
 
 # Development notes (not for repo)
 AGENT_INVOCATION_ISSUE.md
